@@ -26,7 +26,7 @@ public class BookService {
     }
 
     public List<Book> getByCategory(Long categoryId) {
-        return bookRepository.findByCategoryIdAndActiveTrue(categoryId);
+        return bookRepository.findByCategory_IdAndActiveTrue(categoryId);
     }
 
     public List<Book> search(String title) {

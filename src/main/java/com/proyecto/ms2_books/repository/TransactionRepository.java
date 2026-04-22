@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByBuyerIdOrSellerId(Long buyerId, Long sellerId);
-    List<Transaction> findByBookId(Long bookId);
+    List<Transaction> findByBook_Id(Long bookId);
 }

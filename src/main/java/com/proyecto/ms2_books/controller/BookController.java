@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -47,6 +48,8 @@ public class BookController {
     @PostMapping
     @Operation(summary = "Publish a book. Body: title, author, category_id, description, photo_url, price (optional)")
     public ResponseEntity<Book> create(@RequestBody Book book) {
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        book.setUserId(userId);
         return ResponseEntity.ok(bookService.create(book));
     }
 
@@ -63,11 +66,13 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
+    record AvailabilityRequest(Boolean available) {}
+
     @PutMapping("/{id}/availability")
     @Operation(summary = "Change book availability. Called by MS4")
     public ResponseEntity<Book> updateAvailability(
             @PathVariable Long id,
-            @RequestParam Boolean available) {
-        return ResponseEntity.ok(bookService.updateAvailability(id, available));
+            @RequestBody AvailabilityRequest body) {
+        return ResponseEntity.ok(bookService.updateAvailability(id, body.available()));
     }
 }

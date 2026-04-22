@@ -7,6 +7,6 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByActiveTrueAndAvailableTrue();
     List<Book> findByUserId(Long userId);
-    List<Book> findByCategoryIdAndActiveTrue(Long categoryId);
+    List<Book> findByCategory_IdAndActiveTrue(Long categoryId);
     List<Book> findByTitleContainingIgnoreCaseAndActiveTrue(String title);
 }
