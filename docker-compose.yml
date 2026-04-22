@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  ms2-books:
+    build: .
+    ports:
+      - "8002:8002"
+    environment:
+      DB_HOST: mysql-books
+      DB_NAME: ms2db
+      DB_USER: root
+      DB_PASSWORD: secreto123
+    depends_on:
+      mysql-books:
+        condition: service_healthy
+    networks:
+      - red-ms2
+
+  mysql-books:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secreto123
+      MYSQL_DATABASE: ms2db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - red-ms2
+
+networks:
+  red-ms2:
+    driver: bridge
+
+volumes:
+  mysql_data:
