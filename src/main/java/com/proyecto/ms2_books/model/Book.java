@@ -15,23 +15,26 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
     private String author;
 
-    private String isbn;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+    // nullable porque si no tiene precio es intercambio
     private BigDecimal price;
-
-    @Column(nullable = false)
-    private Integer stock = 0;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
 
     @Column(name = "available")
     private Boolean available = true;
@@ -39,15 +42,8 @@ public class Book {
     @Column(name = "active")
     private Boolean active = true;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Transaction> transactions;

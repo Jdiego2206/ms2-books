@@ -31,36 +31,16 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getById(id));
     }
 
-    @GetMapping("/buyer/{buyerId}")
-    @Operation(summary = "Get transactions by buyer")
-    public List<Transaction> getByBuyer(@PathVariable Long buyerId) {
-        return transactionService.getByBuyer(buyerId);
-    }
-
-    @GetMapping("/seller/{sellerId}")
-    @Operation(summary = "Get transactions by seller")
-    public List<Transaction> getBySeller(@PathVariable Long sellerId) {
-        return transactionService.getBySeller(sellerId);
+    // Este es el que pide el .md: /user/:userId (buyer O seller)
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Get all transactions of a user (as buyer or seller)")
+    public List<Transaction> getByUser(@PathVariable Long userId) {
+        return transactionService.getByUser(userId);
     }
 
     @PostMapping
-    @Operation(summary = "Create a new transaction")
+    @Operation(summary = "Register a completed transaction. Called by MS4")
     public ResponseEntity<Transaction> create(@RequestBody Transaction transaction) {
         return ResponseEntity.ok(transactionService.create(transaction));
-    }
-
-    @PatchMapping("/{id}/status")
-    @Operation(summary = "Update transaction status")
-    public ResponseEntity<Transaction> updateStatus(
-            @PathVariable Long id,
-            @RequestParam String status) {
-        return ResponseEntity.ok(transactionService.updateStatus(id, status));
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Soft delete a transaction")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        transactionService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }

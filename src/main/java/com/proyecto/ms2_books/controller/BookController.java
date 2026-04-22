@@ -1,5 +1,4 @@
 package com.proyecto.ms2_books.controller;
-
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +19,16 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    @Operation(summary = "Get all available books")
-    public List<Book> getAll() {
+    @Operation(summary = "Get all available books. Query params: ?category=id&search=title")
+    public List<Book> getAll(
+            @RequestParam(required = false) Long category,
+            @RequestParam(required = false) String search) {
+        if (search != null && !search.isEmpty()) {
+            return bookService.search(search);
+        }
+        if (category != null) {
+            return bookService.getByCategory(category);
+        }
         return bookService.getAll();
     }
 
@@ -37,34 +44,30 @@ public class BookController {
         return bookService.getByUser(userId);
     }
 
-    @GetMapping("/category/{categoryId}")
-    @Operation(summary = "Get books by category")
-    public List<Book> getByCategory(@PathVariable Long categoryId) {
-        return bookService.getByCategory(categoryId);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Search books by title")
-    public List<Book> search(@RequestParam String title) {
-        return bookService.search(title);
-    }
-
     @PostMapping
-    @Operation(summary = "Create a new book")
+    @Operation(summary = "Publish a book. Body: title, author, category_id, description, photo_url, price (optional)")
     public ResponseEntity<Book> create(@RequestBody Book book) {
         return ResponseEntity.ok(bookService.create(book));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update a book")
+    @Operation(summary = "Edit book. Only the owner")
     public ResponseEntity<Book> update(@PathVariable Long id, @RequestBody Book book) {
         return ResponseEntity.ok(bookService.update(id, book));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Soft delete a book")
+    @Operation(summary = "Soft delete: marks active=false. Only the owner")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/availability")
+    @Operation(summary = "Change book availability. Called by MS4")
+    public ResponseEntity<Book> updateAvailability(
+            @PathVariable Long id,
+            @RequestParam Boolean available) {
+        return ResponseEntity.ok(bookService.updateAvailability(id, available));
     }
 }

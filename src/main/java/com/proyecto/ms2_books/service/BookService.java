@@ -4,7 +4,6 @@ import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -43,18 +42,22 @@ public class BookService {
         book.setTitle(data.getTitle());
         book.setAuthor(data.getAuthor());
         book.setDescription(data.getDescription());
+        book.setPhotoUrl(data.getPhotoUrl());
         book.setPrice(data.getPrice());
-        book.setStock(data.getStock());
         book.setAvailable(data.getAvailable());
         book.setCategory(data.getCategory());
-        book.setUpdatedAt(LocalDateTime.now());
+        return bookRepository.save(book);
+    }
+
+    public Book updateAvailability(Long id, Boolean available) {
+        Book book = getById(id);
+        book.setAvailable(available);
         return bookRepository.save(book);
     }
 
     public void delete(Long id) {
         Book book = getById(id);
         book.setActive(false);
-        book.setUpdatedAt(LocalDateTime.now());
         bookRepository.save(book);
     }
 }
