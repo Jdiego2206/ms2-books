@@ -1,8 +1,11 @@
 package com.proyecto.ms2_books.service;
 
+import com.proyecto.ms2_books.dto.PagedResponse;
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -12,8 +15,9 @@ public class BookService {
 
     private final BookRepository bookRepository;
 
-    public List<Book> getAll() {
-        return bookRepository.findByActiveTrueAndAvailableTrue();
+    public PagedResponse<Book> getAll(int page, int size) {
+        Page<Book> result = bookRepository.findByActiveTrueAndAvailableTrue(PageRequest.of(page - 1, size));
+        return toResponse(result, page, size);
     }
 
     public List<Book> getAllForExport() {
@@ -29,12 +33,18 @@ public class BookService {
         return bookRepository.findByUserId(userId);
     }
 
-    public List<Book> getByCategory(Long categoryId) {
-        return bookRepository.findByCategory_IdAndActiveTrue(categoryId);
+    public PagedResponse<Book> getByCategory(Long categoryId, int page, int size) {
+        Page<Book> result = bookRepository.findByCategory_IdAndActiveTrue(categoryId, PageRequest.of(page - 1, size));
+        return toResponse(result, page, size);
     }
 
-    public List<Book> search(String title) {
-        return bookRepository.findByTitleContainingIgnoreCaseAndActiveTrue(title);
+    public PagedResponse<Book> search(String title, int page, int size) {
+        Page<Book> result = bookRepository.findByTitleContainingIgnoreCaseAndActiveTrue(title, PageRequest.of(page - 1, size));
+        return toResponse(result, page, size);
+    }
+
+    private PagedResponse<Book> toResponse(Page<Book> p, int page, int size) {
+        return new PagedResponse<>(p.getContent(), p.getTotalElements(), page, size, p.getTotalPages());
     }
 
     public Book create(Book book) {

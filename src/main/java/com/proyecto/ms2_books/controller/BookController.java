@@ -1,4 +1,5 @@
 package com.proyecto.ms2_books.controller;
+import com.proyecto.ms2_books.dto.PagedResponse;
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,17 +22,19 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    @Operation(summary = "Get all available books. Query params: ?category=id&search=title")
-    public List<Book> getAll(
+    @Operation(summary = "Get available books (paginated). Query params: ?category=id&search=title&page=1&size=20")
+    public PagedResponse<Book> getAll(
             @RequestParam(required = false) Long category,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
         if (search != null && !search.isEmpty()) {
-            return bookService.search(search);
+            return bookService.search(search, page, size);
         }
         if (category != null) {
-            return bookService.getByCategory(category);
+            return bookService.getByCategory(category, page, size);
         }
-        return bookService.getAll();
+        return bookService.getAll(page, size);
     }
 
     @GetMapping("/{id}")
