@@ -16,6 +16,10 @@ public class BookService {
         return bookRepository.findByActiveTrueAndAvailableTrue();
     }
 
+    public List<Book> getAllForExport() {
+        return bookRepository.findAll();
+    }
+
     public Book getById(Long id) {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found: " + id));

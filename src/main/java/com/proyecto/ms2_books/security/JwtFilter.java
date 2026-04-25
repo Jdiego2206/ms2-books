@@ -29,7 +29,8 @@ public class JwtFilter extends OncePerRequestFilter {
         // Estas rutas no necesitan token
         if (path.contains("/swagger-ui") ||
                 path.contains("/v3/api-docs") ||
-                path.contains("/actuator")) {
+                path.contains("/actuator") ||
+                path.contains("/api/export")) {
             filterChain.doFilter(request, response);
             return;
         }

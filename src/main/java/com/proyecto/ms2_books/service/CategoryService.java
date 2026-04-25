@@ -16,6 +16,10 @@ public class CategoryService {
         return categoryRepository.findByActiveTrue();
     }
 
+    public List<Category> getAllForExport() {
+        return categoryRepository.findAll();
+    }
+
     public Category getById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found: " + id));
