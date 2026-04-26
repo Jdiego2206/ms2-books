@@ -2,10 +2,8 @@ package com.proyecto.ms2_books.controller;
 
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.model.Category;
-import com.proyecto.ms2_books.model.Transaction;
 import com.proyecto.ms2_books.service.BookService;
 import com.proyecto.ms2_books.service.CategoryService;
-import com.proyecto.ms2_books.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -26,7 +24,6 @@ public class ExportController {
 
     private final BookService bookService;
     private final CategoryService categoryService;
-    private final TransactionService transactionService;
 
     @Value("${export.api.key}")
     private String apiKey;
@@ -49,13 +46,5 @@ public class ExportController {
     public ResponseEntity<List<Category>> exportCategories(@RequestHeader(value = "X-API-KEY", required = false) String key) {
         if (!isValidKey(key)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         return ResponseEntity.ok(categoryService.getAllForExport());
-    }
-
-    @GetMapping("/transactions")
-    @Operation(summary = "Export all transactions")
-    @Parameter(name = "X-API-KEY", in = ParameterIn.HEADER, required = true, schema = @Schema(type = "string"))
-    public ResponseEntity<List<Transaction>> exportTransactions(@RequestHeader(value = "X-API-KEY", required = false) String key) {
-        if (!isValidKey(key)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        return ResponseEntity.ok(transactionService.getAll());
     }
 }

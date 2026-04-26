@@ -1,13 +1,11 @@
 package com.proyecto.ms2_books.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -67,7 +65,4 @@ public class Book {
     @Schema(description = "Fecha de creación del registro", accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<Transaction> transactions;
 }
