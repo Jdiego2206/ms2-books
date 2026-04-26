@@ -2,15 +2,19 @@ package com.proyecto.ms2_books.controller;
 import com.proyecto.ms2_books.dto.PagedResponse;
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.service.BookService;
+import com.proyecto.ms2_books.storage.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/books")
@@ -20,6 +24,7 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
+    private final S3Service s3Service;
 
     @GetMapping
     @Operation(summary = "Get available books (paginated). Query params: ?category=id&search=title&page=1&size=20")
@@ -73,6 +78,26 @@ public class BookController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload book cover photo. Only the owner. Replaces previous photo.")
+    public ResponseEntity<?> uploadPhoto(
+            @PathVariable Long id,
+            @RequestParam("photo") MultipartFile photo) {
+        if (!s3Service.isConfigured()) {
+            return ResponseEntity.status(503).body(Map.of("error", "Storage service not configured"));
+        }
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Book book = bookService.getById(id);
+        if (!book.getUserId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Only the owner can upload photos"));
+        }
+        try {
+            return ResponseEntity.ok(bookService.uploadPhoto(id, photo, s3Service));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error uploading photo"));
+        }
     }
 
     record AvailabilityRequest(Boolean available) {}

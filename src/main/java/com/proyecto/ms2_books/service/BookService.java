@@ -3,10 +3,13 @@ package com.proyecto.ms2_books.service;
 import com.proyecto.ms2_books.dto.PagedResponse;
 import com.proyecto.ms2_books.model.Book;
 import com.proyecto.ms2_books.repository.BookRepository;
+import com.proyecto.ms2_books.storage.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -34,7 +37,7 @@ public class BookService {
     }
 
     public PagedResponse<Book> getByCategory(Long categoryId, int page, int size) {
-        Page<Book> result = bookRepository.findByCategory_IdAndActiveTrue(categoryId, PageRequest.of(page - 1, size));
+        Page<Book> result = bookRepository.findByCategory_IdAndActiveTrueAndAvailableTrue(categoryId, PageRequest.of(page - 1, size));
         return toResponse(result, page, size);
     }
 
@@ -73,5 +76,14 @@ public class BookService {
         Book book = getById(id);
         book.setActive(false);
         bookRepository.save(book);
+    }
+
+    public Book uploadPhoto(Long bookId, MultipartFile file, S3Service s3) throws IOException {
+        Book book = getById(bookId);
+        if (book.getPhotoUrl() != null) {
+            try { s3.deleteBookPhoto(book.getPhotoUrl()); } catch (Exception ignored) {}
+        }
+        book.setPhotoUrl(s3.uploadBookPhoto(file, bookId));
+        return bookRepository.save(book);
     }
 }
