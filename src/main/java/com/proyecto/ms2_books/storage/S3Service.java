@@ -6,6 +6,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -22,15 +23,16 @@ public class S3Service {
     public S3Service(String accessKey, String secretKey, String region, String bucket) {
         this.bucket = bucket;
         this.region = region;
-        this.configured = !accessKey.isBlank() && !secretKey.isBlank()
-                && !region.isBlank() && !bucket.isBlank();
+        this.configured = !region.isBlank() && !bucket.isBlank();
 
         if (this.configured) {
-            this.client = S3Client.builder()
-                    .region(Region.of(region))
-                    .credentialsProvider(StaticCredentialsProvider.create(
-                            AwsBasicCredentials.create(accessKey, secretKey)))
-                    .build();
+            S3ClientBuilder builder = S3Client.builder().region(Region.of(region));
+            if (!accessKey.isBlank() && !secretKey.isBlank()) {
+                builder.credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)));
+            }
+            // credentials vacías → SDK usa DefaultCredentialsProvider → IAM role via IMDS
+            this.client = builder.build();
         } else {
             this.client = null;
         }
